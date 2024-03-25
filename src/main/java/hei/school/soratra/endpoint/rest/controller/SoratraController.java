@@ -75,7 +75,7 @@ public class SoratraController {
     }
 
     private static String convertToUpperCase(String file) throws IOException {
-        File fichier = new File(file + ".txt");
+        File fichier = new File(file);
 
         StringBuilder contenu = new StringBuilder();
 
