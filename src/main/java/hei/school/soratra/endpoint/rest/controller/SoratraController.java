@@ -34,21 +34,15 @@ public class SoratraController {
             @RequestBody byte[] file
     ) {
         try {
-            File fileToUpload = convertToTempFile(file);
+            File fileToUpload = convertToTempFile(file, id);
+            bucketComponent.upload(fileToUpload, SORATRA_KEY + id + ".txt");
 
-            bucketComponent.upload(fileToUpload, SORATRA_KEY + id);
-            String allUpperCase = convertToUpperCase(fileToUpload.getName());
-
-            File fileTransformed = new File(id);
-            try (FileOutputStream fos = new FileOutputStream(fileTransformed)) {
-                fos.write(allUpperCase.getBytes());
-            }
-
-            bucketComponent.upload(fileTransformed, SORATRA_KEY + "UpperCase/" + id);
+            File fileTransformed = convertToTempFileTransformed(fileToUpload);
+            bucketComponent.upload(fileTransformed, SORATRA_KEY + "UpperCase/" + id + ".txt");
 
             return ResponseEntity.ok().body(null);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on the treatment of the text: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors du traitement du fichier text: " + e.getMessage());
         }
     }
 
@@ -66,26 +60,37 @@ public class SoratraController {
         }
     }
 
-    private File convertToTempFile(byte[] file) throws IOException {
-        File tempFile = File.createTempFile("temp-fichier", ".txt");
+    private File convertToTempFile(byte[] file, String id) throws IOException {
+        File tempFile = File.createTempFile(id, ".txt");
         try (FileOutputStream fos = new FileOutputStream(tempFile)) {
             fos.write(file);
         }
         return tempFile;
     }
 
-    private static String convertToUpperCase(String file) throws IOException {
-        File fichier = new File(file);
+    private static File convertToTempFileTransformed(File file) throws IOException {
+        String upperCaseString = convertToUpperCase(file.getName());
 
-        StringBuilder contenu = new StringBuilder();
+        File fileToUpperCase = new File("file-to-upper-case.txt");
+        try (FileOutputStream fos = new FileOutputStream(upperCaseString)) {
+            fos.write(upperCaseString.getBytes());
+        }
 
-        try (Scanner scanner = new Scanner(fichier)) {
+        return fileToUpperCase;
+    }
+
+    public static String convertToUpperCase(String myFile) throws IOException {
+        File file = new File(myFile);
+
+        StringBuilder content = new StringBuilder();
+
+        try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String ligne = scanner.nextLine();
-                contenu.append(ligne.toUpperCase()).append("\n");
+                content.append(ligne.toUpperCase()).append("\n");
             }
         }
 
-        return contenu.toString();
+        return content.toString();
     }
 }
