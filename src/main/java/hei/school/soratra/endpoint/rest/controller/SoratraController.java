@@ -48,7 +48,7 @@ public class SoratraController {
 
             return ResponseEntity.ok().body(null);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors du traitement du fichier text: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error on the treatment of the text: " + e.getMessage());
         }
     }
 
